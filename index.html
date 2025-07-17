@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cotizador PCs Japonesas - Funcional</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .calculator {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #2ecc71;
+        }
+        #results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #eaf7ee;
+            border-radius: 8px;
+            border-left: 5px solid #27ae60;
+            display: none;
+        }
+        .result-item {
+            margin: 12px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .final-result {
+            font-weight: bold;
+            color: #e74c3c;
+            font-size: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Cotizador de PCs Japonesas</h1>
+        
+        <label for="jpyAmount">Ingrese el costo en JPY (yenes):</label>
+        <input type="number" id="jpyAmount" placeholder="Ejemplo: 85000" min="0" step="1">
+        
+        <button id="calculateBtn">Calcular Cotización</button>
+        
+        <div id="results">
+            <h2>Detalle del cálculo:</h2>
+            <div class="result-item" id="step1"></div>
+            <div class="result-item" id="step2"></div>
+            <div class="result-item" id="step3"></div>
+            <div class="result-item" id="step4"></div>
+            <div class="final-result" id="finalResult"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar el evento click del botón
+            document.getElementById('calculateBtn').addEventListener('click', function() {
+                calcularCotizacion();
+            });
+            
+            // Configurar el evento Enter en el input
+            document.getElementById('jpyAmount').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    calcularCotizacion();
+                }
+            });
+        });
+
+        function calcularCotizacion() {
+            // Obtener y validar el valor ingresado
+            const jpyInput = document.getElementById('jpyAmount');
+            const jpyValue = parseFloat(jpyInput.value);
+            
+            if (isNaN(jpyValue) || jpyValue <= 0) {
+                alert("Por favor ingrese un valor válido en JPY");
+                jpyInput.focus();
+                return;
+            }
+            
+            // 1. Convertir JPY a IDR: (JPY + 200) * 123
+            const idr = (jpyValue + 200) * 123;
+            
+            // 2. Convertir IDR a USD: 1 IDR = 0.000061 USD
+            const usd = idr * 0.000061;
+            
+            // 3. Calcular fee de Wise (5.3% del monto en USD)
+            const fee = usd * 0.053;
+            
+            // 4. Total en USD con fee incluido
+            const totalUsd = usd + fee;
+            
+            // 5. Convertir USD a PEN: 1 USD = 3.56 PEN
+            const totalPen = totalUsd * 3.56;
+            
+            // Mostrar resultados
+            mostrarResultados(jpyValue, idr, usd, fee, totalUsd, totalPen);
+        }
+
+        function mostrarResultados(jpy, idr, usd, fee, totalUsd, totalPen) {
+            document.getElementById('step1').innerHTML = 
+                `<strong>Paso 1:</strong> (JPY + 200) × 123 = (${jpy} + 200) × 123 = <strong>${idr.toLocaleString('es-PE')} IDR</strong>`;
+            
+            document.getElementById('step2').innerHTML = 
+                `<strong>Paso 2:</strong> IDR a USD = ${idr.toLocaleString('es-PE')} × 0.000061 = <strong>${usd.toFixed(6)} USD</strong>`;
+            
+            document.getElementById('step3').innerHTML = 
+                `<strong>Paso 3:</strong> Fee Wise (5.3%) = ${usd.toFixed(6)} × 0.053 = <strong>${fee.toFixed(6)} USD</strong>`;
+            
+            document.getElementById('step4').innerHTML = 
+                `<strong>Paso 4:</strong> Total USD = ${usd.toFixed(6)} + ${fee.toFixed(6)} = <strong>${totalUsd.toFixed(6)} USD</strong>`;
+            
+            document.getElementById('finalResult').innerHTML = 
+                `TOTAL FINAL: <strong>S/ ${totalPen.toFixed(2)}</strong>`;
+            
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
